@@ -1,0 +1,49 @@
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from pydentic import BaseModel,Field,computed_field
+from typing import Literal,Annotated
+import joblib
+import pandas as pd
+
+with open("cardiovascular_model.pkl",'rb') as f:
+    ml_model = joblib.load(f)
+
+app = FastAPI()
+
+class UserInput(BaseModel):
+    age:Annotated[int,Field(...,description=("Enter your age"),gt=18,lt=100)]
+    sex:Annotated[Literal['Female','Male'],Field(...,description=("Enter your gender"))]
+    height_cm:Annotated[float,Field(...,description=("Enter your height"),gt=140,lt=210)]
+    weight_kg:Annotated[float,Field(...,description=("Enter your weight"),gt=30,lt=200)]
+    systolic_bp:Annotated[float,Field(...,description=("Enter your Systolic bp"),gt=70,lt=210)]
+    cholesterol:Annotated[float,Field(...,description=("Enter your Cholesterol"),gt=50,lt=600)]
+    glucose:Annotated[float,Field(...,description=("Enter your Glucose level"),gt=40,lt=600)]
+    smoking:Annotated[Literal['Yes','No'],Field(...,description=("Do you smoke"))]
+    family_history:Annotated[Literal['No','Yes'],Field(...,description=("Do you have family history"))]
+    physical_activity:Annotated[Literal['High','Low','Medium'],Field(...,description=("Do you have family history"))]
+    diabetes:Annotated[Literal['No','Yes'],Field(...,description=("Do you have diabetes"))]
+    hypertension_history:Annotated[Literal['No','Yes'],Field(...,description=("Do you have hypertension"))]
+
+app.post("/predict")
+def predict_cardiovascular(data:UserInput):
+
+    input = pd.DataFrame([
+        {
+            "age":data.age,
+            "sex":data.sex,
+            "height_cm":data.height_cm,
+            "weight_kg":data.weight_kg,
+            "systolic_bp":data.systolic_bp,
+            "cholesterol":data.cholesterol,
+            "glucose":data.glucose,
+            "smoking":data.smoking,
+            "family_history":data.family_history,
+            "physical_activity":data.physical_activity,
+            "diabetes":data.diabetes,
+            "hypertension_history":data.hypertension_history
+        }
+    ])
+    
+    prediction =  ml_model.predict(input)[0]
+
+    return JSONResponse(status_code=200,content={'predicted_category':prediction})
