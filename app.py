@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from pydentic import BaseModel,Field,computed_field
+from pydantic import BaseModel,Field,computed_field
 from typing import Literal,Annotated
 import joblib
 import pandas as pd
