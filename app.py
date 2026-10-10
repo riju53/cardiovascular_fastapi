@@ -1,12 +1,4 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel,Field,computed_field
-from typing import Literal,Annotated
-import joblib
-import pandas as pd
 
-with open("cardiovascular_model.pkl",'rb') as f:
-    ml_model = joblib.load(f)
 from pathlib import Path
 from typing import Literal, Annotated
 
@@ -70,8 +62,3 @@ def predict_cardiovascular(data: UserInput):
         status_code=200,
         content={"predicted_category": prediction}
     )
-
-    
-    prediction =  ml_model.predict(input)[0]
-
-    return JSONResponse(status_code=200,content={'predicted_category':prediction})
