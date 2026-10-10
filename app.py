@@ -24,7 +24,7 @@ class UserInput(BaseModel):
     diabetes:Annotated[Literal['No','Yes'],Field(...,description=("Do you have diabetes"))]
     hypertension_history:Annotated[Literal['No','Yes'],Field(...,description=("Do you have hypertension"))]
 
-app.post("/predict")
+@app.get("/predict")
 def predict_cardiovascular(data:UserInput):
 
     input = pd.DataFrame([
